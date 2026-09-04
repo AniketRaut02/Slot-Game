@@ -15,3 +15,5 @@ MonoBehaviour:
   symbols:
   - symbol: {fileID: 11400000, guid: c50824777fd506e4194a687669af0410, type: 2}
     weight: 50
+  - symbol: {fileID: 11400000, guid: 2097babe549cbe649b8e68817d2c5d61, type: 2}
+    weight: 50
