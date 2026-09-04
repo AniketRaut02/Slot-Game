@@ -18,6 +18,9 @@ namespace SlotGame.Reels
         [Tooltip("Ease-out curve to make the stop feel natural, not linear")]
         [SerializeField] private AnimationCurve decelerationCurve;
 
+        [Header("Visual Replacements")]
+        [SerializeField] private List<SymbolDefinitionSO> fallbackSymbols;
+
         private ReelSpinState currentState = ReelSpinState.Idle;
         private float currentSpeed;
         private float stateTimer;
@@ -40,6 +43,16 @@ namespace SlotGame.Reels
             currentState = ReelSpinState.Idle; // wait for our staggered delay
         }
 
+        private void Start()
+        {
+            if (fallbackSymbols == null || fallbackSymbols.Count == 0) return;
+
+            foreach (ReelSymbolView view in activeSymbols)
+            {
+                SymbolDefinitionSO randomSymbol = fallbackSymbols[UnityEngine.Random.Range(0, fallbackSymbols.Count)];
+                view.SetSymbol(randomSymbol);
+            }
+        }
         private void Update()
         {
             switch (currentState)
@@ -131,8 +144,6 @@ namespace SlotGame.Reels
 
         private void MoveSymbolsCircular()
         {
-            // loop through and move UI elements down, recycling them to the top if they drop off
-            // absolutely no Instantiate or Destroy calls here to avoid GC spikes
             foreach (ReelSymbolView view in activeSymbols)
             {
                 view.transform.localPosition += Vector3.down * (currentSpeed * Time.deltaTime);
@@ -140,21 +151,64 @@ namespace SlotGame.Reels
                 if (view.transform.localPosition.y <= -symbolHeight * 2)
                 {
                     view.transform.localPosition += new Vector3(0, symbolHeight * activeSymbols.Count, 0);
-                    // note: in a full implementation, we'd swap the sprite here to a random blur symbol
+
+                    if (fallbackSymbols != null && fallbackSymbols.Count > 0)
+                    {
+                        SymbolDefinitionSO randomSymbol = fallbackSymbols[UnityEngine.Random.Range(0, fallbackSymbols.Count)];
+                        view.SetSymbol(randomSymbol);
+                    }
                 }
             }
         }
 
         private void InjectTargetSymbolIntoSequence()
         {
-            // this is where we'd force the RNG's predetermined targetSymbol onto the specific view 
-            // that is mathematically calculated to land in the center row when deceleration finishes.
+            ReelSymbolView highestView = activeSymbols[0];
+            float maxY = float.MinValue;
+
+            foreach (ReelSymbolView view in activeSymbols)
+            {
+                if (view.transform.localPosition.y > maxY)
+                {
+                    maxY = view.transform.localPosition.y;
+                    highestView = view;
+                }
+            }
+
+            if (targetSymbol != null)
+            {
+                highestView.SetSymbol(targetSymbol);
+            }
         }
 
         private void SnapToGrid()
         {
-            // final visual alignment so the symbols don't rest on half-pixels
             currentSpeed = 0f;
+
+            float closestDistance = float.MaxValue;
+            float offsetToCenter = 0f;
+            ReelSymbolView centerView = null;
+
+            foreach (ReelSymbolView view in activeSymbols)
+            {
+                float distance = Mathf.Abs(view.transform.localPosition.y);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    offsetToCenter = view.transform.localPosition.y;
+                    centerView = view;
+                }
+            }
+
+            if (centerView != null && targetSymbol != null)
+            {
+                centerView.SetSymbol(targetSymbol);
+            }
+
+            foreach (ReelSymbolView view in activeSymbols)
+            {
+                view.transform.localPosition -= new Vector3(0, offsetToCenter, 0);
+            }
         }
     }
 }

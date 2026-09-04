@@ -569,7 +569,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 224978067}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
   m_Name: 
@@ -1430,7 +1430,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 146, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &835982973
@@ -1495,6 +1495,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fallbackSymbols:
+  - {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
+  - {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
+  - {fileID: 11400000, guid: fabc855c7671e234d89fafccb57ead16, type: 2}
+  - {fileID: 11400000, guid: 2762985ecbf42a547a60afa289bdf926, type: 2}
 --- !u!1 &842590816
 GameObject:
   m_ObjectHideFlags: 0
@@ -1724,6 +1729,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fallbackSymbols:
+  - {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
+  - {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
+  - {fileID: 11400000, guid: fabc855c7671e234d89fafccb57ead16, type: 2}
+  - {fileID: 11400000, guid: 2762985ecbf42a547a60afa289bdf926, type: 2}
 --- !u!1 &936441641
 GameObject:
   m_ObjectHideFlags: 0
@@ -2269,6 +2279,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fallbackSymbols: []
 --- !u!114 &1077221652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2320,7 +2331,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 146, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1096678074
@@ -2385,6 +2396,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fallbackSymbols:
+  - {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
+  - {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
+  - {fileID: 11400000, guid: fabc855c7671e234d89fafccb57ead16, type: 2}
+  - {fileID: 11400000, guid: 2762985ecbf42a547a60afa289bdf926, type: 2}
 --- !u!1 &1211996959
 GameObject:
   m_ObjectHideFlags: 0
@@ -2576,6 +2592,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  fallbackSymbols: []
 --- !u!114 &1220278446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2672,7 +2689,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1230949115}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 936441644}
+        m_TargetAssemblyTypeName: SlotGame.Economy.BetController, Assembly-CSharp
+        m_MethodName: IncreaseBet
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1230949115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4713,7 +4742,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2046742460}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 936441644}
+        m_TargetAssemblyTypeName: SlotGame.Economy.BetController, Assembly-CSharp
+        m_MethodName: DecreaseBet
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2046742460
 MonoBehaviour:
   m_ObjectHideFlags: 0
