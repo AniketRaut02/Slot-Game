@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c7248329f2157e428bed66e2ff9798a, type: 3}
+  m_Name: Reel_Strip3
+  m_EditorClassIdentifier: Assembly-CSharp::SlotGame.Data.ReelStripSO
+  symbols:
+  - symbol: {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
+    weight: 40
+  - symbol: {fileID: 11400000, guid: 2762985ecbf42a547a60afa289bdf926, type: 2}
+    weight: 30
+  - symbol: {fileID: 11400000, guid: fabc855c7671e234d89fafccb57ead16, type: 2}
+    weight: 20
+  - symbol: {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
+    weight: 10
