@@ -21,6 +21,8 @@ namespace SlotGame.Reels
         [Header("Visual Replacements")]
         [SerializeField] private List<SymbolDefinitionSO> fallbackSymbols;
 
+
+        public ReelSymbolView CenterView { get; private set; }
         private ReelSpinState currentState = ReelSpinState.Idle;
         private float currentSpeed;
         private float stateTimer;
@@ -184,10 +186,9 @@ namespace SlotGame.Reels
         private void SnapToGrid()
         {
             currentSpeed = 0f;
-
             float closestDistance = float.MaxValue;
             float offsetToCenter = 0f;
-            ReelSymbolView centerView = null;
+            CenterView = null; // Reset our cache
 
             foreach (ReelSymbolView view in activeSymbols)
             {
@@ -196,13 +197,15 @@ namespace SlotGame.Reels
                 {
                     closestDistance = distance;
                     offsetToCenter = view.transform.localPosition.y;
-                    centerView = view;
+                    CenterView = view;
                 }
             }
 
-            if (centerView != null && targetSymbol != null)
+            if (CenterView != null && targetSymbol != null)
             {
-                centerView.SetSymbol(targetSymbol);
+                CenterView.SetSymbol(targetSymbol);
+                // Trigger the juice
+                CenterView.PlaySquash();
             }
 
             foreach (ReelSymbolView view in activeSymbols)

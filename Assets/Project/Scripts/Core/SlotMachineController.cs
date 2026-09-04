@@ -66,33 +66,35 @@ namespace SlotGame.Core
 
         private void HandleSpinRequested()
         {
-            // lock input if we aren't chilling in the idle state
             if (currentState != GameState.Idle) return;
 
             currentState = GameState.Spinning;
             reelsStoppedCount = 0;
 
+            // Clear previous win animations
+            foreach (ReelController reel in reels)
+            {
+                if (reel.CenterView != null) reel.CenterView.ResetView();
+            }
+
+            float baseDuration = UnityEngine.Random.Range(config.MinSpinDuration, config.MaxSpinDuration);
+
             for (int i = 0; i < reels.Count; i++)
             {
-                // 1. ask RNG for the exact final outcome before any graphics move
                 int targetIndex = rngService.NextWeightedIndex(reelStrips[i]);
                 SymbolDefinitionSO targetSymbol = reelStrips[i].Symbols[targetIndex].symbol;
-
-                // Validate our data instantly so we aren't guessing where a null came from
-                if (targetSymbol == null)
-                {
-                    Debug.LogError($"[SlotMachineController] ReelStrip '{reelStrips[i].name}' has an empty symbol slot at index {targetIndex}. Assign it in the Inspector!");
-                }
-
-                // 2. cache it in our invisible grid for the win evaluator to check later.
                 finalGrid[i, 1] = targetSymbol;
 
-                // 3. calculate the stagger so they stop one after another, classic slot tension trick
                 float startDelay = i * config.PerReelStopStagger;
-                float randomDuration = UnityEngine.Random.Range(config.MinSpinDuration, config.MaxSpinDuration);
+                float duration = baseDuration;
 
-                // 4. tell the visual reel to go do its thing
-                reels[i].SpinToward(targetSymbol, randomDuration, startDelay);
+                // Classic slot tension trick: add an extra half second to the final reel
+                if (i == reels.Count - 1)
+                {
+                    duration += 0.5f;
+                }
+
+                reels[i].SpinToward(targetSymbol, duration, startDelay);
             }
         }
 
@@ -110,20 +112,24 @@ namespace SlotGame.Core
 
         private void EvaluateWin()
         {
-            // pass the pre-calculated grid to our pure logic evaluator
             WinResult result = winEvaluator.Evaluate(finalGrid, paytable);
-
             currentState = GameState.PresentingWin;
-            Debug.Log($"Win status: {result.isWin}");
-            // broadcast the result out to the void. 
-            // UI, Audio, and Economy will pick this up on their own without tight coupling.
+
+            // Trigger the visual glow on the specific winning symbols
+            if (result.isWin && result.winningCells != null)
+            {
+                foreach (Vector2Int cell in result.winningCells)
+                {
+                    // cell.x maps perfectly to our reels list index
+                    reels[cell.x].CenterView.PlayWinPulse();
+                }
+            }
+
             if (winEvaluatedEvent != null)
             {
                 winEvaluatedEvent.RaiseEvent(result);
             }
 
-            // popping back to idle. in a full game we'd wait for a "presentation finished" event,
-            // but this keeps the loop unbroken for now.
             currentState = GameState.Idle;
         }
     }
