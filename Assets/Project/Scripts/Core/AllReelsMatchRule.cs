@@ -21,6 +21,13 @@ namespace SlotGame.Core
                 SymbolDefinitionSO currentSymbol = grid[x, CENTER_ROW];
                 matchedCells.Add(new Vector2Int(x, CENTER_ROW));
 
+                // Defensive check: prevents a crash if a designer leaves a slot empty in the inspector
+                if (currentSymbol == null)
+                {
+                    Debug.LogError($"[WinEvaluator] Null symbol found at reel {x}. Failing the win evaluation early.");
+                    return new WinResult { isWin = false };
+                }
+
                 // if it's a wild, just keep going since it matches anything
                 if (currentSymbol.IsWild)
                 {
@@ -38,7 +45,6 @@ namespace SlotGame.Core
                     return new WinResult { isWin = false };
                 }
             }
-
             // if the whole line was just wilds, use the wild symbol itself for the payout lookup
             SymbolDefinitionSO winningSymbol = firstNonWild != null ? firstNonWild : grid[0, CENTER_ROW];
             float multiplier = paytable.GetMultiplier(winningSymbol);
