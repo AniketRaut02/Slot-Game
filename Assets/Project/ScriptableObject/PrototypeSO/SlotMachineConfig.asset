@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlotGame.Data.SlotMachineConfigSO
   reelCount: 3
   visibleRows: 3
-  minSpinDuration: 2
-  maxSpinDuration: 3
-  perReelStopStagger: 0.2
+  minSpinDuration: 4
+  maxSpinDuration: 4
+  perReelStopStagger: 0.5
   minBet: 10
   maxBet: 100
   defaultBet: 10

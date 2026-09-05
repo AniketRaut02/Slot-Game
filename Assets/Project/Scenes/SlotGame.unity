@@ -1858,6 +1858,8 @@ MonoBehaviour:
   - {fileID: 956428297}
   maxSpinSpeed: 2500
   symbolHeight: 250
+  accelDuration: 0.5
+  decelDuration: 1
   decelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -1891,6 +1893,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  settleDuration: 0.22
+  settleFallFraction: 0.6
+  maxOvershoot: 30
   fallbackSymbols:
   - {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
   - {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
@@ -2215,6 +2220,8 @@ MonoBehaviour:
   - {fileID: 1450258735}
   maxSpinSpeed: 2500
   symbolHeight: 250
+  accelDuration: 0.5
+  decelDuration: 1
   decelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -2248,6 +2255,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  settleDuration: 0.22
+  settleFallFraction: 0.6
+  maxOvershoot: 30
   fallbackSymbols:
   - {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
   - {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
@@ -2841,6 +2851,8 @@ MonoBehaviour:
   - {fileID: 380703985}
   maxSpinSpeed: 2500
   symbolHeight: 250
+  accelDuration: 0.5
+  decelDuration: 1
   decelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -2865,6 +2877,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  settleDuration: 0.22
+  settleFallFraction: 0.6
+  maxOvershoot: 30
   fallbackSymbols: []
 --- !u!114 &1077221652
 MonoBehaviour:
@@ -2940,6 +2955,8 @@ MonoBehaviour:
   - {fileID: 1038154347}
   maxSpinSpeed: 2500
   symbolHeight: 250
+  accelDuration: 0.5
+  decelDuration: 1
   decelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -2973,6 +2990,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  settleDuration: 0.22
+  settleFallFraction: 0.6
+  maxOvershoot: 30
   fallbackSymbols:
   - {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
   - {fileID: 11400000, guid: 02f441abe7f99ce4da3d30c01cda8902, type: 2}
@@ -3277,6 +3297,8 @@ MonoBehaviour:
   - {fileID: 1963810463}
   maxSpinSpeed: 2500
   symbolHeight: 250
+  accelDuration: 0.5
+  decelDuration: 1
   decelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -3301,6 +3323,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  settleDuration: 0.22
+  settleFallFraction: 0.6
+  maxOvershoot: 30
   fallbackSymbols: []
 --- !u!114 &1220278446
 MonoBehaviour:
@@ -4832,7 +4857,7 @@ MonoBehaviour:
   - {fileID: 1096678074}
   spinRequestedEvent: {fileID: 11400000, guid: 8e60fec3958b720428cfb4bcdc851d91, type: 2}
   winEvaluatedEvent: {fileID: 11400000, guid: 9fc4eb94b6fea9141a9cf22f2be7b32e, type: 2}
-  useRiggedSpin: 1
+  useRiggedSpin: 0
   riggedTargetIndices: 050000000500000005000000
 --- !u!1 &1843746274
 GameObject:

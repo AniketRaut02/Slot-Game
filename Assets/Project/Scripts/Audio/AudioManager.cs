@@ -46,7 +46,9 @@ namespace SlotGame.Audio
 
             foreach (ReelController reel in reels)
             {
-                // FIX: Listen to the physical impact, not the logic finish
+                // Listens to the physical impact (fired at the bottom of the settle dip in
+                // ReelController), not "logic finished" — so the thump lands on the same frame
+                // the player sees the reel hit its pocket.
                 reel.OnReelImpact += HandleReelImpact;
             }
         }
@@ -77,30 +79,13 @@ namespace SlotGame.Audio
             }
         }
 
-        private void HandleReelSnapped(ReelController reel, Data.SymbolDefinitionSO symbol)
-        {
-            activeSpinningReels--;
-
-            // Play the thump
-            PlayOneShot(sfxLibrary.reelStop);
-
-            // Fade out the spin loop as reels stop
-            if (activeSpinningReels <= 0)
-            {
-                spinLoopSource.Stop();
-            }
-            else
-            {
-                spinLoopSource.volume = (float)activeSpinningReels / reels.Count;
-            }
-        }
-
         private void HandleReelImpact()
         {
             activeSpinningReels--;
 
             PlayOneShot(sfxLibrary.reelStop);
 
+            // Fade out the spin loop as reels stop
             if (activeSpinningReels <= 0)
             {
                 spinLoopSource.Stop();
@@ -161,7 +146,5 @@ namespace SlotGame.Audio
                 sfxSource.PlayOneShot(clip);
             }
         }
-
-
     }
 }

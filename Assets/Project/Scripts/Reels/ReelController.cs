@@ -14,15 +14,28 @@ namespace SlotGame.Reels
         [Header("Spin Settings")]
         [SerializeField] private float maxSpinSpeed = 2500f;
         [SerializeField] private float symbolHeight = 250f; // distance between each pooled symbol
+        [SerializeField] private float accelDuration = 0.5f;
+        [SerializeField] private float decelDuration = 1.0f;
 
         [Tooltip("Ease-out curve to make the stop feel natural, not linear")]
         [SerializeField] private AnimationCurve decelerationCurve;
+
+        [Header("Settle / Snap Feel")]
+        [Tooltip("Total time spent correcting from wherever the reel physically stopped into its perfect grid slot.")]
+        [SerializeField] private float settleDuration = 0.22f;
+        [Tooltip("Fraction of settleDuration spent falling toward the pocket before the recoil starts.")]
+        [SerializeField, Range(0.1f, 0.9f)] private float settleFallFraction = 0.6f;
+        [Tooltip("Max distance the reel dips past its resting slot on impact, before recoiling back.")]
+        [SerializeField] private float maxOvershoot = 30f;
 
         [Header("Visual Replacements")]
         [SerializeField] private List<SymbolDefinitionSO> fallbackSymbols;
 
 
         public ReelSymbolView CenterView { get; private set; }
+
+        // Fires at the exact moment the reel visually contacts its resting slot (bottom of the
+        // settle dip) — this is the frame audio/camera-shake should react to, not "logic finished".
         public System.Action OnReelImpact;
 
         private ReelSpinState currentState = ReelSpinState.Idle;
@@ -106,8 +119,6 @@ namespace SlotGame.Reels
         {
             stateTimer += Time.deltaTime;
 
-            // quick linear acceleration for the first half second to get up to speed
-            float accelDuration = 0.5f;
             currentSpeed = Mathf.Lerp(0f, maxSpinSpeed, stateTimer / accelDuration);
 
             MoveSymbolsCircular();
@@ -126,9 +137,11 @@ namespace SlotGame.Reels
 
             MoveSymbolsCircular();
 
-            // leave exactly 1 second at the end for the deceleration curve
-            float timeUntilDecel = totalDuration - 1.0f;
-            if (stateTimer >= timeUntilDecel)
+            // FIX: totalDuration is the caller's contract for the WHOLE spin (accel + constant + decel).
+            // stateTimer resets when we entered this state, so we have to subtract the accel phase too,
+            // not just decel — otherwise every spin silently runs accelDuration seconds long.
+            float constantPhaseDuration = Mathf.Max(0f, totalDuration - accelDuration - decelDuration);
+            if (stateTimer >= constantPhaseDuration)
             {
                 stateTimer = 0f;
                 InjectTargetSymbolIntoSequence();
@@ -140,12 +153,12 @@ namespace SlotGame.Reels
         {
             stateTimer += Time.deltaTime;
 
-            float easeValue = decelerationCurve.Evaluate(stateTimer / 1.0f);
+            float easeValue = decelerationCurve.Evaluate(stateTimer / decelDuration);
             currentSpeed = Mathf.Lerp(maxSpinSpeed, 0f, easeValue);
 
             MoveSymbolsCircular();
 
-            if (stateTimer >= 1.0f)
+            if (stateTimer >= decelDuration)
             {
                 // Push it to a transition state so Update stops calling this
                 currentState = ReelSpinState.Snapped;
@@ -209,8 +222,6 @@ namespace SlotGame.Reels
 
         private System.Collections.IEnumerator SettleRoutine()
         {
-            OnReelImpact?.Invoke();
-
             // 1. Sort the views from top to bottom based on their actual physical position
             activeSymbols.Sort((a, b) => b.transform.localPosition.y.CompareTo(a.transform.localPosition.y));
 
@@ -218,44 +229,69 @@ namespace SlotGame.Reels
             int centerIdx = activeSymbols.IndexOf(CenterView);
 
             // 3. Assign rigid, perfect slots relative to the center view (no rounding math)
-            Vector3[] perfectPositions = new Vector3[activeSymbols.Count];
-            for (int i = 0; i < activeSymbols.Count; i++)
+            int count = activeSymbols.Count;
+            Vector3[] perfectPositions = new Vector3[count];
+            Vector3[] startPositions = new Vector3[count];
+            for (int i = 0; i < count; i++)
             {
                 int stepFromCenter = centerIdx - i;
                 perfectPositions[i] = new Vector3(0, stepFromCenter * symbolHeight, 0);
+                // FIX: capture each symbol's REAL current position instead of assuming a single
+                // shared "dropDistance" derived only from CenterView. Every symbol corrects from
+                // wherever it actually is, so there's no phantom pop and no direction-flip bug.
+                startPositions[i] = activeSymbols[i].transform.localPosition;
             }
 
-            float currentY = CenterView.transform.localPosition.y;
-            float dropDistance = Mathf.Max(currentY, 75f);
-
             float elapsed = 0f;
-            float duration = 0.18f;
-            float overshootAmount = 30f;
+            bool impactFired = false;
 
-            while (elapsed < duration)
+            while (elapsed < settleDuration)
             {
                 elapsed += Time.deltaTime;
-                float t = elapsed / duration;
-                float currentOffset;
+                float t = Mathf.Clamp01(elapsed / settleDuration);
 
-                if (t < 0.6f)
+                bool inFallPhase = t < settleFallFraction;
+                float fallT = EaseOutCubic(Mathf.Clamp01(t / settleFallFraction));
+                float recoilT = inFallPhase
+                    ? 0f
+                    : EaseOutBack(Mathf.Clamp01((t - settleFallFraction) / (1f - settleFallFraction)));
+
+                for (int i = 0; i < count; i++)
                 {
-                    currentOffset = Mathf.Lerp(dropDistance, -overshootAmount, t / 0.6f);
-                }
-                else
-                {
-                    currentOffset = Mathf.Lerp(-overshootAmount, 0f, (t - 0.6f) / 0.4f);
+                    Vector3 target = perfectPositions[i];
+
+                    // Scale the overshoot to how far THIS symbol actually had to travel, so a
+                    // near-perfect stop doesn't get an oversized bounce, and a big correction does.
+                    float travel = Mathf.Abs(startPositions[i].y - target.y);
+                    float overshoot = Mathf.Min(maxOvershoot, travel * 0.5f + 5f);
+
+                    Vector3 pos;
+                    if (inFallPhase)
+                    {
+                        pos = Vector3.Lerp(startPositions[i], target, fallT);
+                    }
+                    else
+                    {
+                        Vector3 dipPoint = target + Vector3.down * overshoot;
+                        pos = Vector3.Lerp(dipPoint, target, recoilT);
+                    }
+
+                    activeSymbols[i].transform.localPosition = pos;
                 }
 
-                for (int i = 0; i < activeSymbols.Count; i++)
+                // FIX: fire the impact exactly when the reel visually bottoms out into the pocket —
+                // not at the start of the coroutine, before any motion has happened.
+                if (!impactFired && !inFallPhase)
                 {
-                    activeSymbols[i].transform.localPosition = perfectPositions[i] + new Vector3(0, currentOffset, 0);
+                    impactFired = true;
+                    OnReelImpact?.Invoke();
                 }
+
                 yield return null;
             }
 
             // Lock positions securely
-            for (int i = 0; i < activeSymbols.Count; i++)
+            for (int i = 0; i < count; i++)
             {
                 activeSymbols[i].transform.localPosition = perfectPositions[i];
             }
@@ -264,6 +300,16 @@ namespace SlotGame.Reels
 
             OnReelSnapped?.Invoke(this, targetSymbol);
             targetSymbol = null;
+        }
+
+        private static float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
+
+        private static float EaseOutBack(float t)
+        {
+            const float c1 = 1.70158f;
+            const float c3 = c1 + 1f;
+            float x = t - 1f;
+            return 1f + c3 * x * x * x + c1 * x * x;
         }
     }
 }
