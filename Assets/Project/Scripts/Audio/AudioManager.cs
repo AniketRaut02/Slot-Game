@@ -43,6 +43,7 @@ namespace SlotGame.Audio
             if (winEvaluatedEvent != null) winEvaluatedEvent.OnEventRaised += HandleWinEvaluated;
             if (bonusTriggeredEvent != null) bonusTriggeredEvent.OnEventRaised += HandleBonusTriggered;
             if (bonusEndedEvent != null) bonusEndedEvent.OnEventRaised += HandleBonusEnded;
+            if (spinRequestedEvent != null) spinRequestedEvent.OnEventRaised += PlayLeverPull;
 
             foreach (ReelController reel in reels)
             {
@@ -59,6 +60,7 @@ namespace SlotGame.Audio
             if (winEvaluatedEvent != null) winEvaluatedEvent.OnEventRaised -= HandleWinEvaluated;
             if (bonusTriggeredEvent != null) bonusTriggeredEvent.OnEventRaised -= HandleBonusTriggered;
             if (bonusEndedEvent != null) bonusEndedEvent.OnEventRaised -= HandleBonusEnded;
+            if (spinRequestedEvent != null) spinRequestedEvent.OnEventRaised -= PlayLeverPull;
 
             foreach (ReelController reel in reels)
             {

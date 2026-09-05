@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PrototypeSFXSO
   m_EditorClassIdentifier: Assembly-CSharp::SlotGame.Audio.SFXLibrarySO
   baseMusic: {fileID: 8300000, guid: be17733b8a417434faac3e06721a91cc, type: 3}
-  bonusMusic: {fileID: 8300000, guid: 40154be06dbcb514e96ca1f318f6f283, type: 3}
+  bonusMusic: {fileID: 8300000, guid: be17733b8a417434faac3e06721a91cc, type: 3}
   spinLoop: {fileID: 8300000, guid: e6d7507f6b1ae6c498f3b7521bcc8d83, type: 3}
   reelStop: {fileID: 8300000, guid: 911fff864623ae34eabf4cdb9d57682d, type: 3}
   winJingle: {fileID: 8300000, guid: a23bc4d192eb86a4cad79cbda78953d6, type: 3}
