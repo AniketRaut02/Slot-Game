@@ -46,7 +46,8 @@ namespace SlotGame.Audio
 
             foreach (ReelController reel in reels)
             {
-                reel.OnReelSnapped += HandleReelSnapped;
+                // FIX: Listen to the physical impact, not the logic finish
+                reel.OnReelImpact += HandleReelImpact;
             }
         }
 
@@ -59,7 +60,7 @@ namespace SlotGame.Audio
 
             foreach (ReelController reel in reels)
             {
-                reel.OnReelSnapped -= HandleReelSnapped;
+                reel.OnReelImpact -= HandleReelImpact;
             }
         }
 
@@ -84,6 +85,22 @@ namespace SlotGame.Audio
             PlayOneShot(sfxLibrary.reelStop);
 
             // Fade out the spin loop as reels stop
+            if (activeSpinningReels <= 0)
+            {
+                spinLoopSource.Stop();
+            }
+            else
+            {
+                spinLoopSource.volume = (float)activeSpinningReels / reels.Count;
+            }
+        }
+
+        private void HandleReelImpact()
+        {
+            activeSpinningReels--;
+
+            PlayOneShot(sfxLibrary.reelStop);
+
             if (activeSpinningReels <= 0)
             {
                 spinLoopSource.Stop();
@@ -121,6 +138,11 @@ namespace SlotGame.Audio
             PlayOneShot(sfxLibrary.buttonClick);
         }
 
+        public void PlayLeverPull()
+        {
+            PlayOneShot(sfxLibrary.leverPull);
+        }
+
         public void PlayCoinTick()
         {
             // using pitch variation so the rapid ticking doesn't sound robotic
@@ -139,5 +161,7 @@ namespace SlotGame.Audio
                 sfxSource.PlayOneShot(clip);
             }
         }
+
+
     }
 }

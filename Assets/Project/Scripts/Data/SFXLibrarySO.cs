@@ -14,6 +14,7 @@ namespace SlotGame.Audio
         public AudioClip reelStop;
         public AudioClip winJingle;
         public AudioClip buttonClick;
+        public AudioClip leverPull;
         public AudioClip coinTick;
     }
 }

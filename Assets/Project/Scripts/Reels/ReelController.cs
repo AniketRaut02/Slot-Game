@@ -23,12 +23,16 @@ namespace SlotGame.Reels
 
 
         public ReelSymbolView CenterView { get; private set; }
+        public System.Action OnReelImpact;
+
         private ReelSpinState currentState = ReelSpinState.Idle;
         private float currentSpeed;
         private float stateTimer;
         private float spinDelay;
         private float totalDuration;
         private SymbolDefinitionSO targetSymbol;
+
+        private ReelSymbolView injectedTargetView;
 
         // clean event for the orchestrator to listen to, no tight coupling here
         public Action<ReelController, SymbolDefinitionSO> OnReelSnapped;
@@ -47,10 +51,19 @@ namespace SlotGame.Reels
 
         private void Start()
         {
+            // Force perfect spacing at startup so we don't rely on human precision in the Inspector
+            for (int i = 0; i < activeSymbols.Count; i++)
+            {
+                // If Center is index 1, this places them at +1, 0, -1, -2 heights
+                float startY = (1 - i) * symbolHeight;
+                activeSymbols[i].transform.localPosition = new Vector3(0, startY, 0);
+            }
+
             if (fallbackSymbols == null || fallbackSymbols.Count == 0) return;
 
             foreach (ReelSymbolView view in activeSymbols)
             {
+                // Fallback to Code Monkey rule: avoid magic strings/indexes, use count
                 SymbolDefinitionSO randomSymbol = fallbackSymbols[UnityEngine.Random.Range(0, fallbackSymbols.Count)];
                 view.SetSymbol(randomSymbol);
             }
@@ -127,7 +140,6 @@ namespace SlotGame.Reels
         {
             stateTimer += Time.deltaTime;
 
-            // grab the curve value so the slow down doesn't look robotic
             float easeValue = decelerationCurve.Evaluate(stateTimer / 1.0f);
             currentSpeed = Mathf.Lerp(maxSpinSpeed, 0f, easeValue);
 
@@ -135,12 +147,9 @@ namespace SlotGame.Reels
 
             if (stateTimer >= 1.0f)
             {
-                SnapToGrid();
+                // Push it to a transition state so Update stops calling this
                 currentState = ReelSpinState.Snapped;
-
-                // tell the orchestrator we finished our visual job
-                OnReelSnapped?.Invoke(this, targetSymbol);
-                targetSymbol = null;
+                SnapToGrid();
             }
         }
 
@@ -154,7 +163,9 @@ namespace SlotGame.Reels
                 {
                     view.transform.localPosition += new Vector3(0, symbolHeight * activeSymbols.Count, 0);
 
-                    if (fallbackSymbols != null && fallbackSymbols.Count > 0)
+                    // FIX: Only swap to random fallbacks if we aren't currently trying to lock in the final result.
+                    // This prevents the target symbol from being accidentally overwritten at the last second.
+                    if (fallbackSymbols.Count > 0 && currentState != ReelSpinState.Decelerating)
                     {
                         SymbolDefinitionSO randomSymbol = fallbackSymbols[UnityEngine.Random.Range(0, fallbackSymbols.Count)];
                         view.SetSymbol(randomSymbol);
@@ -177,41 +188,82 @@ namespace SlotGame.Reels
                 }
             }
 
+            // Cache the exact view we injected so we never accidentally swap to a different one
+            injectedTargetView = highestView;
+
             if (targetSymbol != null)
             {
-                highestView.SetSymbol(targetSymbol);
+                injectedTargetView.SetSymbol(targetSymbol);
             }
         }
 
         private void SnapToGrid()
         {
             currentSpeed = 0f;
-            float closestDistance = float.MaxValue;
-            float offsetToCenter = 0f;
-            CenterView = null; // Reset our cache
 
-            foreach (ReelSymbolView view in activeSymbols)
+            // We strictly use the view we injected, ignoring whatever is technically "closest"
+            CenterView = injectedTargetView;
+
+            StartCoroutine(SettleRoutine());
+        }
+
+        private System.Collections.IEnumerator SettleRoutine()
+        {
+            OnReelImpact?.Invoke();
+
+            // 1. Sort the views from top to bottom based on their actual physical position
+            activeSymbols.Sort((a, b) => b.transform.localPosition.y.CompareTo(a.transform.localPosition.y));
+
+            // 2. Find where our injected target ended up in that sorted list
+            int centerIdx = activeSymbols.IndexOf(CenterView);
+
+            // 3. Assign rigid, perfect slots relative to the center view (no rounding math)
+            Vector3[] perfectPositions = new Vector3[activeSymbols.Count];
+            for (int i = 0; i < activeSymbols.Count; i++)
             {
-                float distance = Mathf.Abs(view.transform.localPosition.y);
-                if (distance < closestDistance)
+                int stepFromCenter = centerIdx - i;
+                perfectPositions[i] = new Vector3(0, stepFromCenter * symbolHeight, 0);
+            }
+
+            float currentY = CenterView.transform.localPosition.y;
+            float dropDistance = Mathf.Max(currentY, 75f);
+
+            float elapsed = 0f;
+            float duration = 0.18f;
+            float overshootAmount = 30f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+                float currentOffset;
+
+                if (t < 0.6f)
                 {
-                    closestDistance = distance;
-                    offsetToCenter = view.transform.localPosition.y;
-                    CenterView = view;
+                    currentOffset = Mathf.Lerp(dropDistance, -overshootAmount, t / 0.6f);
                 }
+                else
+                {
+                    currentOffset = Mathf.Lerp(-overshootAmount, 0f, (t - 0.6f) / 0.4f);
+                }
+
+                for (int i = 0; i < activeSymbols.Count; i++)
+                {
+                    activeSymbols[i].transform.localPosition = perfectPositions[i] + new Vector3(0, currentOffset, 0);
+                }
+                yield return null;
             }
 
-            if (CenterView != null && targetSymbol != null)
+            // Lock positions securely
+            for (int i = 0; i < activeSymbols.Count; i++)
             {
-                CenterView.SetSymbol(targetSymbol);
-                // Trigger the juice
-                CenterView.PlaySquash();
+                activeSymbols[i].transform.localPosition = perfectPositions[i];
             }
 
-            foreach (ReelSymbolView view in activeSymbols)
-            {
-                view.transform.localPosition -= new Vector3(0, offsetToCenter, 0);
-            }
+            if (CenterView != null) CenterView.PlaySquash();
+
+            OnReelSnapped?.Invoke(this, targetSymbol);
+            targetSymbol = null;
         }
     }
 }
