@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ScatterSymbol
   m_EditorClassIdentifier: Assembly-CSharp::SlotGame.Data.SymbolDefinitionSO
   symbolId: Scatter
-  displaySprite: {fileID: -8847860209519698046, guid: dd3854a26423cb143846311636e5f456, type: 3}
-  payoutMultiplier: 0
+  displaySprite: {fileID: 21300000, guid: 620f78a9ef2e7d04cb9b43f3a7aeb550, type: 3}
+  payoutMultiplier: 5
   isWild: 0
   isScatter: 1

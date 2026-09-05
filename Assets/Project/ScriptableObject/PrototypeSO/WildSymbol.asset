@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WildSymbol
   m_EditorClassIdentifier: Assembly-CSharp::SlotGame.Data.SymbolDefinitionSO
   symbolId: Wild
-  displaySprite: {fileID: -39037251207825769, guid: 9423e048cfb3f3d49ba9777aedfd8c0d, type: 3}
-  payoutMultiplier: 0
+  displaySprite: {fileID: 21300000, guid: b64fda01cd09b6547b81e26ec444ee64, type: 3}
+  payoutMultiplier: 1
   isWild: 1
   isScatter: 0

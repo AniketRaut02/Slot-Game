@@ -993,8 +993,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 512790730}
   - {fileID: 224978068}
+  - {fileID: 512790730}
   m_Father: {fileID: 592336829}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2609,8 +2609,8 @@ MonoBehaviour:
   - {fileID: 1293413144}
   spinRequestedEvent: {fileID: 11400000, guid: 8e60fec3958b720428cfb4bcdc851d91, type: 2}
   winEvaluatedEvent: {fileID: 11400000, guid: 9fc4eb94b6fea9141a9cf22f2be7b32e, type: 2}
-  useRiggedSpin: 1
-  riggedTargetIndices: 050000000500000005000000
+  useRiggedSpin: 0
+  riggedTargetIndices: 040000000300000003000000
 --- !u!1 &1780187863
 GameObject:
   m_ObjectHideFlags: 0
@@ -3463,6 +3463,10 @@ PrefabInstance:
     - target: {fileID: 56307088241560556, guid: f076ec8a77c31c045a8dfec86ef4221c, type: 3}
       propertyPath: m_Name
       value: Reel1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3741327221500213948, guid: f076ec8a77c31c045a8dfec86ef4221c, type: 3}
+      propertyPath: m_Sprite
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5894412773274810216, guid: f076ec8a77c31c045a8dfec86ef4221c, type: 3}
       propertyPath: m_Pivot.x
