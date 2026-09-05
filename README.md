@@ -24,6 +24,19 @@ A high-quality 3-reel slot machine prototype built in Unity, developed with a st
 
 ---
 
+## Symbols
+
+| Symbol | Type | Function |
+|---|---|---|
+| Cherry | Standard | Matches across all 3 reels for a payout. |
+| Bar | Standard | Matches across all 3 reels for a payout. |
+| Bell | Standard | Matches across all 3 reels for a payout. |
+| Seven | Standard | Matches across all 3 reels for a payout. |
+| Wild | Special | Substitutes for any standard symbol to complete a matching line. Does not substitute for Scatter. |
+| Scatter | Special | Pays no line-match; landing 3+ anywhere on the grid (position-independent) triggers the Free Spins bonus round. |
+
+---
+
 ## Bonus Features
 
 - **Free Spins (Scatter Mechanics)** — Landing 3 Scatter symbols seamlessly hijacks the game loop, locking the UI and triggering an automated Free Spins bonus round that does not deduct from the player's wallet.
