@@ -10,6 +10,9 @@ namespace SlotGame.UI
         [SerializeField] private GameObject popupPanel;
         [SerializeField] private float rollupDuration = 0.5f;
 
+        [Header("Audio (Optional)")]
+        [SerializeField] private Audio.AudioManager audioManager;
+
         private void Awake()
         {
             popupPanel.SetActive(false);
@@ -24,11 +27,20 @@ namespace SlotGame.UI
         private IEnumerator RollupRoutine(float targetAmount)
         {
             float time = 0f;
+            float tickTimer = 0f;
+            float tickInterval = 0.05f; // Play a sound every 50ms during roll-up
 
-            // animate the number from 0 to payout over a half second instead of an instant snap
             while (time < rollupDuration)
             {
                 time += Time.deltaTime;
+                tickTimer += Time.deltaTime;
+
+                if (tickTimer >= tickInterval)
+                {
+                    tickTimer = 0f;
+                    if (audioManager != null) audioManager.PlayCoinTick();
+                }
+
                 float currentVal = Mathf.Lerp(0f, targetAmount, time / rollupDuration);
                 winAmountText.text = $"WIN: ${currentVal:F0}";
                 yield return null;
@@ -39,5 +51,7 @@ namespace SlotGame.UI
             yield return new WaitForSeconds(1.5f);
             popupPanel.SetActive(false);
         }
+
+
     }
 }
