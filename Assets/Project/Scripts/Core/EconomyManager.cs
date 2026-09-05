@@ -14,14 +14,17 @@ namespace SlotGame.Economy
 
         [Header("Events")]
         [SerializeField] private WinResultEventChannelSO winEvaluatedEvent;
+        [SerializeField] private VoidEventChannelSO bonusTriggeredEvent;
+        [SerializeField] private VoidEventChannelSO bonusEndedEvent;
 
         private PlayerWallet wallet;
+        private bool isBonusActive = false;
+
         private const float STARTING_BALANCE = 1000f;
         private const float DEFAULT_BET = 10f;
 
         private void Awake()
         {
-            // spin up our pure C# wallet
             wallet = new PlayerWallet(STARTING_BALANCE, DEFAULT_BET);
 
             hudController.Initialize(wallet);
@@ -30,18 +33,16 @@ namespace SlotGame.Economy
 
         private void OnEnable()
         {
-            if (winEvaluatedEvent != null)
-            {
-                winEvaluatedEvent.OnEventRaised += HandleWinEvaluated;
-            }
+            if (winEvaluatedEvent != null) winEvaluatedEvent.OnEventRaised += HandleWinEvaluated;
+            if (bonusTriggeredEvent != null) bonusTriggeredEvent.OnEventRaised += HandleBonusTriggered;
+            if (bonusEndedEvent != null) bonusEndedEvent.OnEventRaised += HandleBonusEnded;
         }
 
         private void OnDisable()
         {
-            if (winEvaluatedEvent != null)
-            {
-                winEvaluatedEvent.OnEventRaised -= HandleWinEvaluated;
-            }
+            if (winEvaluatedEvent != null) winEvaluatedEvent.OnEventRaised -= HandleWinEvaluated;
+            if (bonusTriggeredEvent != null) bonusTriggeredEvent.OnEventRaised -= HandleBonusTriggered;
+            if (bonusEndedEvent != null) bonusEndedEvent.OnEventRaised -= HandleBonusEnded;
         }
 
         private void HandleWinEvaluated(WinResult result)
@@ -53,7 +54,28 @@ namespace SlotGame.Economy
                 winPopup.ShowWin(payout);
             }
 
-            // spin is totally over, re-enable UI inputs
+            // Only unlock the UI if we aren't being hijacked by the FreeSpinController
+            if (!isBonusActive)
+            {
+                hudController.SetInteractable(true);
+            }
+        }
+
+        private void HandleBonusTriggered()
+        {
+            isBonusActive = true;
+            wallet.IsFreeSpinning = true;
+
+            // Hard lock the UI for the duration of the bonus
+            hudController.SetInteractable(false);
+        }
+
+        private void HandleBonusEnded()
+        {
+            isBonusActive = false;
+            wallet.IsFreeSpinning = false;
+
+            // Bonus is over, give control back to the player
             hudController.SetInteractable(true);
         }
     }

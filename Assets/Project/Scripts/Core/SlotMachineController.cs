@@ -21,6 +21,12 @@ namespace SlotGame.Core
         [SerializeField] private VoidEventChannelSO spinRequestedEvent;
         [SerializeField] private WinResultEventChannelSO winEvaluatedEvent;
 
+        [Header("Debug / Testing")]
+        [Tooltip("Check this to force the reels to land on specific indexes")]
+        [SerializeField] private bool useRiggedSpin = false;
+        [Tooltip("The exact index on the ReelStrip to land on for Reel 1, 2, and 3")]
+        [SerializeField] private List<int> riggedTargetIndices = new List<int> { 0, 0, 0 };
+
         private GameState currentState = GameState.Idle;
         private ISlotRNG rngService;
         private WinEvaluator winEvaluator;
@@ -66,15 +72,19 @@ namespace SlotGame.Core
 
         private void HandleSpinRequested()
         {
+            // Lock input if we aren't safely in the idle state
             if (currentState != GameState.Idle) return;
 
             currentState = GameState.Spinning;
             reelsStoppedCount = 0;
 
-            // Clear previous win animations
+            // Clear previous win animations before starting the next spin
             foreach (ReelController reel in reels)
             {
-                if (reel.CenterView != null) reel.CenterView.ResetView();
+                if (reel.CenterView != null)
+                {
+                    reel.CenterView.ResetView();
+                }
             }
 
             float baseDuration = UnityEngine.Random.Range(config.MinSpinDuration, config.MaxSpinDuration);
@@ -82,8 +92,28 @@ namespace SlotGame.Core
             for (int i = 0; i < reels.Count; i++)
             {
                 int targetIndex = rngService.NextWeightedIndex(reelStrips[i]);
-                SymbolDefinitionSO targetSymbol = reelStrips[i].Symbols[targetIndex].symbol;
-                finalGrid[i, 1] = targetSymbol;
+                int symbolCount = reelStrips[i].Symbols.Count;
+
+                // --- DEBUG OVERRIDE ---
+                // Bypass the RNG entirely to test exact win/scatter scenarios
+                if (useRiggedSpin && i < riggedTargetIndices.Count)
+                {
+                    // Modulo prevents IndexOutOfRangeException if the rigged index is too high
+                    targetIndex = riggedTargetIndices[i] % symbolCount;
+                }
+                // ----------------------
+
+                // Calculate wrapping indices for the top and bottom rows 
+                // This ensures the entire 3x3 grid is populated in memory for scatter detection
+                int topIndex = (targetIndex - 1 + symbolCount) % symbolCount;
+                int bottomIndex = (targetIndex + 1) % symbolCount;
+
+                finalGrid[i, 0] = reelStrips[i].Symbols[topIndex].symbol;
+                finalGrid[i, 1] = reelStrips[i].Symbols[targetIndex].symbol; // Center row
+                finalGrid[i, 2] = reelStrips[i].Symbols[bottomIndex].symbol;
+
+                // The visual reel only needs to know about the center symbol to snap correctly
+                SymbolDefinitionSO targetSymbol = finalGrid[i, 1];
 
                 float startDelay = i * config.PerReelStopStagger;
                 float duration = baseDuration;

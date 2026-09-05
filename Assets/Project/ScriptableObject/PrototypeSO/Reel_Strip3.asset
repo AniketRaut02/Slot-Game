@@ -21,3 +21,7 @@ MonoBehaviour:
     weight: 20
   - symbol: {fileID: 11400000, guid: 5171a75cddf87b442b4302540de93ce7, type: 2}
     weight: 10
+  - symbol: {fileID: 11400000, guid: 625a66e03a66ab7418f809ce2d3e69a5, type: 2}
+    weight: 10
+  - symbol: {fileID: 11400000, guid: 1c186b5fed5c06e49b1e0745cead9be3, type: 2}
+    weight: 10

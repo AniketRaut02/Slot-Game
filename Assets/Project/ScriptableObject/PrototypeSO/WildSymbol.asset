@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7926ab2649889954a8aead0e80983087, type: 3}
+  m_Name: WildSymbol
+  m_EditorClassIdentifier: Assembly-CSharp::SlotGame.Data.SymbolDefinitionSO
+  symbolId: Wild
+  displaySprite: {fileID: -39037251207825769, guid: 9423e048cfb3f3d49ba9777aedfd8c0d, type: 3}
+  payoutMultiplier: 0
+  isWild: 1
+  isScatter: 0

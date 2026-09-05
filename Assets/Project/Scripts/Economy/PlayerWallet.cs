@@ -7,6 +7,8 @@ namespace SlotGame.Economy
         public float Balance { get; private set; }
         public float CurrentBet { get; private set; }
 
+        public bool IsFreeSpinning { get; set; }
+
         // keeping state changes hidden and broadcasting them out so UI can just listen
         public event Action<float> OnBalanceChanged;
         public event Action<float> OnBetChanged;
@@ -19,8 +21,9 @@ namespace SlotGame.Economy
 
         public bool TryDeductBet()
         {
-            if (Balance < CurrentBet) return false;
+            if (IsFreeSpinning) return true; // It's on the house
 
+            if (Balance < CurrentBet) return false;
             Balance -= CurrentBet;
             OnBalanceChanged?.Invoke(Balance);
             return true;

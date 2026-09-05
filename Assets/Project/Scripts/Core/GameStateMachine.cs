@@ -7,6 +7,10 @@ namespace SlotGame.Core
         Idle,
         Spinning,
         Evaluating,
-        PresentingWin
+        PresentingWin,
+        BonusIntro,
+        BonusPlay
     }
+
+
 }
